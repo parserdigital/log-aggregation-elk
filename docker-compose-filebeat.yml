@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+
+  movies-info-service:
+    build:
+      context: movies-info-service
+    environment:
+      - "SPRING_PROFILES_ACTIVE=filebeat"
+    depends_on:
+      - filebeat
+    ports:
+      - "8080:8080"
+    labels:
+      collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
+    networks:
+      - elk

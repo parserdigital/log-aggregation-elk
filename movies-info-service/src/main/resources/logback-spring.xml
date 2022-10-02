@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="movies-info-service" source="spring.application.name"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <springProfile name="filebeat">
+
+        <appender name="jsonConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="jsonConsoleAppender"/>
+            <appender-ref ref="STDOUT"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="kafka">
+
+        <appender name="kafkaAppender"
+                  class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">
+            <appender name="kafkaVerboseAppender"
+                      class="com.github.danielwegener.logback.kafka.KafkaAppender">
+                <encoder class="com.github.danielwegener.logback.kafka.encoding.LayoutKafkaMessageEncoder">
+                    <layout class="net.logstash.logback.layout.LogstashLayout">
+                        <includeContext>false</includeContext>
+                        <includeCallerData>true</includeCallerData>
+                        <customFields>{"application":"${applicationName}"}</customFields>
+                        <fieldNames class="net.logstash.logback.fieldnames.ShortenedFieldNames"/>
+                    </layout>
+                    <charset>UTF-8</charset>
+                </encoder>
+                <topic>movies-logs</topic>
+                <keyingStrategy
+                        class="com.github.danielwegener.logback.kafka.keying.RoundRobinKeyingStrategy"/>
+                <deliveryStrategy
+                        class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy"/>
+                <producerConfig>bootstrap.servers=kafka:9092</producerConfig>
+                <producerConfig>retries=2</producerConfig>
+            </appender>
+
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="kafkaAppender"/>
+            <appender-ref ref="STDOUT"/>
+        </root>
+
+    </springProfile>
+
+</configuration>
