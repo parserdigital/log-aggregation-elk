@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: movies-info-service
+  profiles:
+    active: "kafka"
+logging:
+  period:
+    info: "*/10 * * * * *"
+    warn: "*/30 * * * * *"
+    error: "0/10 * * * * *"
