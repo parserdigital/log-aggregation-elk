@@ -3,7 +3,7 @@
 ## Build
 
 ```
-cd movies-info-service && gradlew clean build
+cd movies-info-service && gradle clean build
 ```
 
 ## Kafka
